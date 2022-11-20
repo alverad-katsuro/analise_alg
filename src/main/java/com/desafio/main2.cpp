@@ -108,8 +108,8 @@ int main() {
             }
           }
           if (pacote_n_viagem == empacotar) {
-            std::cout << "\n";
             knapSack(limite, pesos, brinquedos, pacote_n_viagem);
+            std::cout << "\n";
             pacote_n_viagem = 0;
             empacotar = 0;
             trigger = 1;
