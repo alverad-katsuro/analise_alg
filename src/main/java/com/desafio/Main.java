@@ -1,70 +1,97 @@
 package com.desafio;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    
+    private int[][] bolas;
+    private int[][][] memoria;
+    private int[][] soma;
+    private int tamanho;
+
+    public Main(int tamanho) {
+        this.tamanho = tamanho;
+        this.bolas = new int[tamanho + 1][tamanho + 1];
+        this.memoria = new int[tamanho + 1][tamanho + 1][2];
+        this.soma = new int[tamanho + 1][tamanho + 1];
+    }
+
     public static void main(String[] args) throws Exception {
-        List<Integer> resultados = new ArrayList<>();
         Scanner sc = new Scanner(System.in);
         int tamanho = Integer.parseInt(sc.nextLine());
-        while(tamanho != 0) {
-            int bolas[][] = new int[tamanho][tamanho];
-            int limite_bolas = 1;
-            for (int i = 0; i < bolas.length; i++) {
+        while (tamanho > 0) {
+            Main main = new Main(tamanho);
+            for (int i = 1; i <= tamanho; i++) {
                 String bolas_entradas[] = sc.nextLine().split(" ");
-                if (bolas_entradas.length == limite_bolas) {
-                    for (int j = 0; j < limite_bolas; j++) {
-                        bolas[i][j] = Integer.parseInt(bolas_entradas[j]);
-                    }
-                    limite_bolas++;
-                } else {
-                    sc.close();
-                    throw new  Exception("Entrada com mais bolas do que devia.");
+                for (int j = 1; j <= i; j++) {
+                    main.getBolas()[i][j] = Integer.parseInt(bolas_entradas[j - 1]);
                 }
+                bolas_entradas = null;
             }
-
-
-            resultados.add(calculaPremio(bolas));
+            System.out.println(main.calculaPremio());
+            main = null;
             tamanho = Integer.parseInt(sc.nextLine());
         }
-        resultados.forEach(System.out::println);
         sc.close();
     }
 
-    public static int calculaPremio(int bolas[][]){
-        int limite_bolas = bolas.length + 1;
-        int memoria[][] = new int[bolas.length][bolas.length];
-        for (int linha = bolas.length - 1; linha >= 0; linha--) {
-            for (int coluna = 0; coluna < limite_bolas - 1; coluna++) {
-                if (linha == bolas.length - 1){
-                    memoria[linha][coluna] = bolas[linha][coluna];
-                } else {
-                    if (memoria[linha + 1][coluna] != Integer.MIN_VALUE && (memoria[linha + 1][coluna] + memoria[linha + 1][coluna + 1]) > memoria[linha + 1][coluna + 1] && 
-                    (memoria[linha + 1][coluna] + memoria[linha + 1][coluna + 1]) > memoria[linha + 1][coluna]) {
-                        memoria[linha][coluna] = bolas[linha][coluna] + memoria[linha + 1][coluna] + memoria[linha + 1][coluna + 1];
-                        memoria[linha + 1][coluna] = Integer.MIN_VALUE;
-                        memoria[linha + 1][coluna + 1] = Integer.MIN_VALUE;
-                    } else if (memoria[linha + 1][coluna] != Integer.MIN_VALUE && memoria[linha + 1][coluna] > memoria[linha + 1][coluna + 1] && memoria[linha + 1][coluna] > 0) {
-                        memoria[linha][coluna] = bolas[linha][coluna] + memoria[linha + 1][coluna];
-                        memoria[linha + 1][coluna] = Integer.MIN_VALUE;
-                    } else if (memoria[linha + 1][coluna + 1] != Integer.MIN_VALUE && memoria[linha + 1][coluna] < memoria[linha + 1][coluna + 1] && memoria[linha + 1][coluna + 1] > 0) {
-                        memoria[linha][coluna] = bolas[linha][coluna] + memoria[linha + 1][coluna + 1];
-                        memoria[linha + 1][coluna + 1] = Integer.MIN_VALUE;
-                    } else {
-                        memoria[linha][coluna] = bolas[linha][coluna];
-                    }
-                }
+    public int calculaPremio() {
+        for (int i = 1; i <= tamanho; i++) {
+            for (int j = 1; j <= i; j++) {
+                this.soma[i][j] = (this.soma[i - 1][j] + this.soma[i - 1][j - 1]
+                        - (i - 2 >= 0 ? this.soma[i - 2][j - 1] : 0)) + this.bolas[i][j];
             }
-            limite_bolas--;
         }
-        if (memoria[0][0] > 0) {
-            return memoria[0][0];
-        } else {
-            return 0;
+        int ans = 0;
+        for (int i = 1; i <= tamanho; i++) {
+            for (int j = 1; j <= tamanho; j++) {
+                this.memoria[i][j][0] = this.memoria[i][j][1] = 0;
+            }
         }
+        for (int j = 1; j <= tamanho; j++) {
+            for (int i = j; i <= tamanho; i++) {
+                this.memoria[i][j][0] = this.soma[i][j];
+                this.memoria[i][j][0] = Integer.max(this.memoria[i][j][0],
+                        this.memoria[i - 1][j - 1][1] + (this.soma[i][j] - this.soma[i - 1][j - 1]));
+                ans = Integer.max(ans, this.memoria[i][j][0]);
+            }
+            this.memoria[tamanho][j][1] = this.memoria[tamanho][j][0];
+            for (int i = tamanho - 1; i >= j; i--) {
+                this.memoria[i][j][1] = Integer.max(this.memoria[i + 1][j][1], this.memoria[i][j][0]);
+            }
+        }
+        return ans;
     }
-    
+
+    public int[][] getBolas() {
+        return bolas;
+    }
+
+    public void setBolas(int[][] bolas) {
+        this.bolas = bolas;
+    }
+
+    public int[][][] getMemoria() {
+        return memoria;
+    }
+
+    public void setMemoria(int[][][] memoria) {
+        this.memoria = memoria;
+    }
+
+    public int[][] getSoma() {
+        return soma;
+    }
+
+    public void setSoma(int[][] soma) {
+        this.soma = soma;
+    }
+
+    public int getTamanho() {
+        return tamanho;
+    }
+
+    public void setTamanho(int tamanho) {
+        this.tamanho = tamanho;
+    }
+
 }
