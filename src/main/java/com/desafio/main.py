@@ -38,7 +38,7 @@ def main():
                 split = list(map(int, split))
                 for i in range(0, 2):
                     if (i == 0):
-                        if ((split[i] > 1) and (split[i] < 100000)):
+                        if ((split[i] > 1) and (split[i] <= 100000)):
                             N = split[i]
                     elif (i == 1):
                         if ((split[i] >= 1) and (split[i] < N)):
