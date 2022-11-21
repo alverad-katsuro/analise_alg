@@ -47,5 +47,7 @@ def main():
             elif (trigger == 1):
                 word = list(entrada)
                 eaw(N, D, word)       
-                print("{}".format(''.join(word)))
+                print("{}\n".format(''.join(word)))
                 trigger-=1
+                
+main()
